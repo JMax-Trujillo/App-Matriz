@@ -124,15 +124,17 @@
 
 
 
-buttons={
-            'Suma': (0.1, 0.5, 0.5, 0.3),
-            'Resta': (0.1, 0.5, 0.5, 0.3),
-            'Multiplicacion': (0.1, 0.5, 0.5, 0.3),
-            'Determinante': (0.1, 0.5, 0.5, 0.3),
-            'Traspuesta': (0.1, 0.5, 0.5, 0.3),
-            'Inversa': (0.1, 0.5, 0.5, 0.3),
-        }
+# buttons={
+#             'Suma': (0.1, 0.5, 0.5, 0.3),
+#             'Resta': (0.1, 0.5, 0.5, 0.3),
+#             'Multiplicacion': (0.1, 0.5, 0.5, 0.3),
+#             'Determinante': (0.1, 0.5, 0.5, 0.3),
+#             'Traspuesta': (0.1, 0.5, 0.5, 0.3),
+#             'Inversa': (0.1, 0.5, 0.5, 0.3),
+#         }
 
-for i in buttons:
-    print(i)
-    print(buttons[i])
+# for i in buttons:
+#     print(i)
+#     print(buttons[i])
+
+print("Gelkasd")

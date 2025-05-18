@@ -48,15 +48,16 @@ login.py -> Login{
 '''
 import os
 ruta_base = os.path.dirname(__file__)
-ruta_img = os.path.join(ruta_base, '..', 'src', 'img', 'login2.jpg')
+ruta_img = os.path.join(ruta_base, '..', 'src', 'img', 'login.jpg')
 
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
-from kivy.graphics import Color, Rectangle
+from kivy.graphics import Color, Rectangle, RoundedRectangle
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import Image
+from kivy.uix.floatlayout import FloatLayout
 import webbrowser
 
 from kivy.config import Config
@@ -64,6 +65,33 @@ Config.set('graphics', 'width', '360')
 Config.set('graphics', 'height', '640')
 Config.set('graphics', 'resizable', '0')
 
+
+# TODO: Estilos de figuras
+class RoundedTextInput(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        with self.canvas.before:
+            Color(1, 1, 1, 0.5)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[15])
+        self.background_color = (0, 0, 0, 0)
+        self.foreground_color = (0, 0, 0, 1)
+        self.hint_text_color = (0.3, 0.3, 0.3, 1)
+        self.padding = [10, 10, 10, 10]
+        self.bind(size=self._update_rect, pos=self._update_rect)
+    def _update_rect(self, *args):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
+
+class RoundedButton(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        with self.canvas.before:
+            Color(1, 1, 1, 0.3)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[40])
+        self.bind(size=self._update_rect, pos=self._update_rect)
+    def _update_rect(self, *args):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
 
 class BackGround(BoxLayout):
     def __init__(self, **kwargs):
@@ -98,7 +126,7 @@ class BackGround(BoxLayout):
             size_hint = (1, 0.2),
             pos_hint={'x': 0, 'y': 0}
         )
-        username_input = TextInput(
+        username_input = RoundedTextInput(
             hint_text='Username',
             size_hint=(1, 0.2),
             pos_hint={'x': 0, 'y': 0},
@@ -107,7 +135,7 @@ class BackGround(BoxLayout):
             foreground_color=(0, 0, 0, 1),
             hint_text_color=(0.3, 0.3, 0.3, 1)
         )
-        password_input = TextInput(
+        password_input = RoundedTextInput(
             hint_text='Password',
             password=True,
             size_hint=(1, 0.2),
@@ -119,7 +147,7 @@ class BackGround(BoxLayout):
         )
         continue_label = Label(
             text='Or continue with:',
-            size_hint=(1, 0.2),
+            size_hint=(1, 0.12),
             pos_hint={'x': 0, 'y': 0},
             color=(1, 1, 1, 1)
         )
@@ -134,25 +162,25 @@ class BackGround(BoxLayout):
         )
 
         # Crar los botones del contenedor
-        unab_button = Button(
+        unab_button = RoundedButton(
             text='UNAB',
-            size_hint=(0.2, 0.2),
+            size_hint=(0.2, 1),
             pos_hint={'x': 0, 'y': 0},
             background_color=(1, 1, 1, 0.5),
             color=(0, 0, 0, 1)
         )
         unab_button.bind(on_release=lambda x: webbrowser.open('https://www.portal.unab.edu.pe/'))
-        github_button = Button(
+        github_button = RoundedButton(
             text='GitHub',
-            size_hint=(0.2, 0.2),
+            size_hint=(0.2, 1),
             pos_hint={'x': 0, 'y': 0},
             background_color=(1, 1, 1, 0.5),
             color=(0, 0, 0, 1)
         )
         github_button.bind(on_release=lambda x: webbrowser.open('https://github.com/JMax-Trujillo'))
-        episi_button = Button(
+        episi_button = RoundedButton(
             text='EPISI',
-            size_hint=(0.2, 0.2),
+            size_hint=(0.2, 1),
             pos_hint={'x': 0, 'y': 0},
             background_color=(1, 1, 1, 0.5),
             color=(0, 0, 0, 1)
@@ -165,7 +193,7 @@ class BackGround(BoxLayout):
         button_container.add_widget(github_button)
         button_container.add_widget(episi_button)
 
-        login_button = Button(
+        login_button = RoundedButton(
             text='Login',
             size_hint=(1, 0.2),
             pos_hint={'x': 0, 'y': 0},
