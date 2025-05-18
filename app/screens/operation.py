@@ -1,140 +1,23 @@
-'''
-pagina_operacion = ......> operacion.py(
-            Screen principal {
-                boxlayout{
-                    Color de la operacion correspondiente
-                    label = titulo (nombre de la operacion)
-                    gridlayout{
-                        matriz_respuesta(boxlayout), ocupa 2 filas{
-                            label = resultado
-                            boxlayout{
-                                orientacion vertical
-                                canvas before rectangulo, diseño de matriz
-                                label = matriz[0]
-                                label = matriz[1]
-                                label = matriz[2]
-                            }
-                        }
-                        matriz_A(boxlayout){
-                            label = resultado
-                            boxlayout{
-                                orientacion vertical
-                                canvas before rectangulo, diseño de matriz
-                                label = matriz[0]
-                                label = matriz[1]
-                                label = matriz[2]
-                            }
-                        }
-                        matriz_B(boxlayout){
-                            label = resultado
-                            boxlayout{
-                                orientacion vertical
-                                canvas before rectangulo, diseño de matriz
-                                label = matriz[0]
-                                label = matriz[1]
-                                label = matriz[2]
-                            }
-                        }
-                    }
-                    butones_2(boxlayout){
-                        button{
-                            text = 'Editar'
-                            Añadir logoca
-                        }
-                        button{
-                            text = 'Resultados'
-                            Añadir logoca
-                        }
-                    num_buttons(griddlayoud){
-                        columnas 4
-                        filas 3
-                        button{
-                            text = '1'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '2'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '3'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '4'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '5'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '6'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '7'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '8'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '9'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '0'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '.'
-                            Añadir logoca
-                        }
-                        button{
-                            text = '+-'   # Cambia de signo
-                            Añadir logoca
-                        }
-                        button{
-                            text = 'Derecha'
-                            Añadir logoca
-                        }
-                        button{
-                            text = 'Izquierda'
-                            Añadir logica
-                        }
-                        button{
-                            text = 'Igual'
-                            Añadir logica
-                        }
-                    }
-                    }
-                    Widget --> Este sera solo pa ocupar espacio
-                }
-                
-                
-            }
-'''
-
-
-from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.core.window import Window
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.graphics import Color, RoundedRectangle
-from kivy.metrics import dp, sp
-from tabulate import tabulate
+from kivy.graphics import Color, RoundedRectangle, Rectangle
+from kivy.metrics import dp
+from kivy.properties import StringProperty
+from kivy.uix.textinput import TextInput
+from app.logic.operation_sum import sumar_matrices
+from app.logic.operation_resta import restar_matrices
+from app.logic.operation_multiplicacion import multiplicar_matrices
+import app.utils.globals as g
 from kivy.properties import StringProperty
 
+# --- COMPONENTES BÁSICOS ---
 
 class ColorLabel(Label):
     def __init__(self, **kwargs):
-        super(ColorLabel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         with self.canvas.before:
             Color(1, 1, 1, 0.3)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
@@ -144,245 +27,165 @@ class ColorLabel(Label):
         self.rect.size = self.size
         self.rect.pos = self.pos
 
+
 class MatrixLayout(GridLayout):
     def __init__(self, **kwargs):
-        super(MatrixLayout, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.cols = 3
         self.rows = 3
         self.padding = 10
         self.spacing = 10
         self.size_hint = (1, 1)
-        
-        #TODO: Configuracion del apuntador
         self.labels = []
-        
+
         with self.canvas.before:
-            Color(0,1,0,1)
+            Color(0.2, 0.8, 0.2, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
-        
-        for data in range(9):
-            label = ColorLabel(
-                text=str(data),
-                size_hint=(1, 1),
-                color=(0, 0, 0, 1)
-            )
+
+        for i in range(9):
+            label = ColorLabel(text=str(i), color=(0, 0, 0, 1))
             self.labels.append(label)
             self.add_widget(label)
-        
+
     def _update_rect(self, *args):
-        # Actualizar el tamaño y la posicion del rectangulo
-        self.rect.pos = self.pos
         self.rect.size = self.size
+        self.rect.pos = self.pos
+
+
+# --- COMPONENTE PRINCIPAL ---
 
 class OperationScreen(Screen):
+    operation = StringProperty("")
     def __init__(self, **kwargs):
-        super(OperationScreen, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
-        
-        #TODO: Codigo provisional para visualizacion de datos
+        self.operation_title = g.title_operation
+        print(self.operation_title)
+        print(g.title_operation)
         with self.canvas.before:
-            Color(1,0,0,1)
+            Color(0.9, 0.9, 0.9, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
-        
-        main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        # Título de la pantalla
-        title = Label(
-            text='Operaciones con Matrices',
-            size_hint=(1, 0.1),
-            font_size='20sp',
-            halign='center',
-            valign='middle'
-        )
+        # Layout principal
+        self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        self.operation_container = BoxLayout(
-            orientation='vertical',
-            size_hint=(1, 0.8),
-            padding=10,
-            spacing=10
-        )
-        with self.operation_container.canvas.before:
-            Color(1,1,0,1)
-            self.rect3 = RoundedRectangle(
-                size=self.operation_container.size,
-                pos=self.operation_container.pos
-            )
-        self.operation_container.bind(size=self._update_rect3, pos=self._update_rect3)
-        
-        self.matrix_container = BoxLayout(
-            orientation='vertical',
-            size_hint=(1, None),
-            height=dp(300),
-            padding=10,
-            spacing=10
-        )
-        with self.matrix_container.canvas.before:
-            Color(0,1,1,1)
-            self.rect2 = RoundedRectangle(size=self.matrix_container.size, pos=self.matrix_container.pos, radius=[20])
-        self.matrix_container.bind(size=self._update_rect2, pos=self._update_rect2)
-        
-        
-        #? Matriz Respuesta
-        self.matrix_answer = BoxLayout(
-            orientation='vertical',
-            size_hint_y=None,
-            height=dp(140),
-        )
-        with self.matrix_answer.canvas.before:
-            Color(0,1,0,1)
-            self.rect_answer = RoundedRectangle(size=self.matrix_answer.size, pos=self.matrix_answer.pos, radius=[20])
-        self.matrix_answer.bind(size=self._update_rect_answer, pos=self._update_rect_answer)
+        self.title = Label(text='', size_hint=(1, 0.1), font_size='20sp', color=(1,0,1,1))
+        self.main_layout.add_widget(self.title)
 
-        matrix_answer_label = Label(
-            text='Answer',
-            size_hint=(1, 0.3),
-            color=(0, 0, 0, 1)
-        )
+        self.operation_container = BoxLayout(orientation='vertical', size_hint=(1, 0.8), spacing=10)
+        self._decorar_fondo(self.operation_container, Color(1, 1, 0, 1), 'rect3')
+
+        self._crear_panel_matrices()
+        self._crear_botones_edicion_resultado()
+        self._crear_section_screen()
+
+        self.main_layout.add_widget(self.operation_container)
+        self.main_layout.add_widget(self._crear_pie())
+
+        self.add_widget(self.main_layout)
         
-        matrix_answer_output = MatrixLayout()
-        self.matrix_answer.add_widget(matrix_answer_label)
-        self.matrix_answer.add_widget(matrix_answer_output)
-        
-        #TODO: Container para ambos botones
-        self.input_matrix_container = BoxLayout(
-            orientation='horizontal',
-            size_hint_y=None,
-            height=dp(50),
-            padding=10,
-            spacing=10
-        )
-        
-        #? Matriz A
-        self.matrix_A = BoxLayout(
-            orientation='vertical',
-            size_hint=(1,None),
-            height=dp(110),
-        )
-        with self.matrix_A.canvas.before:
-            Color(0,1,0,1)
-            self.rectA = RoundedRectangle(size=self.matrix_A.size, pos=self.matrix_A.pos, radius=[20])
-        self.matrix_A.bind(size=self._update_rectA, pos=self._update_rectA)
-        
-        self.matrix_A_label = Label(
-            text='Matriz A',
-            size_hint=(1, 0.3),
-            color=(0, 0, 0, 1)
-        )
-        self.matrix_A_output = MatrixLayout()
-        self.matrix_A_labels = self.matrix_A_output.labels
-        self.current_matrix = 'A'
-        self.current_index = 0
-        
-        self.matrix_A.add_widget(self.matrix_A_label)
-        self.matrix_A.add_widget(self.matrix_A_output)
+    def on_pre_enter(self, *args):
+        # ✅ Se actualiza justo antes de entrar a la pantalla
+        self.title.text = self.operation_title
+
+    def _crear_panel_matrices(self):
+        self.matrix_container = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(300), spacing=10)
+        self._decorar_fondo(self.matrix_container, Color(0, 1, 1, 1), 'rect2')
+
+        # Matrices A y B
+        self.input_matrix_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(110), spacing=10)
+
+        self.matrix_A = self._crear_matriz('A')
+        self.matrix_B = self._crear_matriz('B')
+
         self.input_matrix_container.add_widget(self.matrix_A)
-        
-        #? Matriz B
-        self.matrix_B = BoxLayout(
-            orientation='vertical',
-            size_hint=(1,None),
-            height=dp(110),
-        )
-        with self.matrix_B.canvas.before:
-            Color(0,1,0,1)
-            self.rectB = RoundedRectangle(size=self.matrix_B.size, pos=self.matrix_B.pos, radius=[20])
-        self.matrix_B.bind(size=self._update_rectB, pos=self._update_rectB)
-
-        self.matrix_B_label = Label(
-            text='Matriz B',
-            size_hint=(1, 0.3),
-            color=(0, 0, 0, 1)
-        )
-        self.matrix_B_output = MatrixLayout()
-        self.matrix_B_labels = self.matrix_B_output.labels
-        
-        self.matrix_B.add_widget(self.matrix_B_label)
-        self.matrix_B.add_widget(self.matrix_B_output)
         self.input_matrix_container.add_widget(self.matrix_B)
-        
-        # TODO:  Agregarlo al contenedor principal
+
+        # Respuesta
+        self.matrix_answer = BoxLayout(orientation='vertical', size_hint_y=None, height=dp(140))
+        self._decorar_fondo(self.matrix_answer, Color(0, 1, 0, 1), 'rect_answer')
+
+        answer_label = Label(text='Answer', size_hint=(1, 0.3))
+        self.matrix_answer_output = MatrixLayout()
+        self.matrix_answer.add_widget(answer_label)
+        self.matrix_answer.add_widget(self.matrix_answer_output)
+
         self.matrix_container.add_widget(self.input_matrix_container)
         self.matrix_container.add_widget(self.matrix_answer)
         self.operation_container.add_widget(self.matrix_container)
-        
-        #! Botones para elegir entre editar y resoluciones
-        self.button_container_ER = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 0.15),
-            padding=10,
-            spacing=10
-        )
-        with self.button_container_ER.canvas.before:
-            Color(0,1,0,1)
-            self.rect4 = RoundedRectangle(size=self.button_container_ER.size, pos=self.button_container_ER.pos, radius=[20])
-        self.button_container_ER.bind(size=self._update_rect4, pos=self._update_rect4)
-        
-        edit_button = Button(
-            text='Editar',
-            size_hint=(0.5, 1),
-            on_release=self.modo_edicion   #? Agregar esta funcion
-        )
-        edit_A = Button(
-            text='A',
-            size_hint=(0.5, 1),
-            on_release=lambda btn: self.switch_matrix('A')
-        )
-        edit_B = Button(
-            text='B',
-            size_hint=(0.5, 1),
-            on_release=lambda btn: self.switch_matrix('B')
-        )
-        edit_box = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 1)
-        )
+
+    def _crear_matriz(self, nombre):
+        box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
+        self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+
+        label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
+        layout = MatrixLayout()
+
+        if nombre == 'A':
+            self.matrix_A_output = layout
+            self.matrix_A_labels = layout.labels
+            self.current_matrix = 'A'
+            self.current_index = 0
+        else:
+            self.matrix_B_output = layout
+            self.matrix_B_labels = layout.labels
+
+        box.add_widget(label)
+        box.add_widget(layout)
+        return box
+
+    def _crear_botones_edicion_resultado(self):
+        self.button_container_ER = BoxLayout(orientation='horizontal', size_hint=(1, 0.15), spacing=10)
+        self._decorar_fondo(self.button_container_ER, Color(0.5, 0.8, 0.5, 1), 'rect4')
+
+        edit_button = Button(text='Editar', on_release=self.modo_edicion)
+        edit_A = Button(text='A', on_release=lambda x: self.switch_matrix('A'))
+        edit_B = Button(text='B', on_release=lambda x: self.switch_matrix('B'))
+
+        edit_box = BoxLayout()
         edit_box.add_widget(edit_A)
         edit_box.add_widget(edit_B)
-        
+
         self.button_container_ER.add_widget(edit_button)
         self.button_container_ER.add_widget(edit_box)
-        
-        # TODO:  Agregarlo al contenedor principal
         self.operation_container.add_widget(self.button_container_ER)
-        
-        #! Agregar el contenedor para Edicion o Resultados
+
+    def _crear_section_screen(self):
         self.section_screen = ScreenManager()
         self.add_edition_screen()
         self.add_result_screen()
         self.operation_container.add_widget(self.section_screen)
-        # Botón para volver al menú principal
-        end_box = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 0.05),
-        )
-        back_button = Button(
-            text='Volver al Menú',
-            size_hint=(1, 1),
-            on_release=self.volver_al_menu
-        )
-        result_button = Button(
-            text='Resultados',
-            size_hint=(0.5, 1),
-            on_release=self.modo_resultados #? Agregar esta funcion
-        )
-        end_box.add_widget(back_button)
-        end_box.add_widget(result_button)
-        # Añadir todo al layout principal
-        main_layout.add_widget(title)
-        main_layout.add_widget(self.operation_container)
-        main_layout.add_widget(end_box)
 
-        self.add_widget(main_layout)
+    def _crear_pie(self):
+        pie = BoxLayout(size_hint=(1, 0.05))
+        back_button = Button(text='Volver al Menú', on_release=self.volver_al_menu)
+        result_button = Button(text='Resultados', on_release=self.modo_resultados)
+        pie.add_widget(back_button)
+        pie.add_widget(result_button)
+        return pie
+
+    def _decorar_fondo(self, widget, color_cmd, attr):
+        with widget.canvas.before:
+            color_cmd
+            setattr(self, attr, RoundedRectangle(size=widget.size, pos=widget.pos, radius=[20]))
+        widget.bind(size=self._make_update(attr), pos=self._make_update(attr))
+
+    def _make_update(self, attr):
+        def updater(*args):
+            rect = getattr(self, attr)
+            widget = args[0]
+            rect.size = widget.size
+            rect.pos = widget.pos
+        return updater
 
     def volver_al_menu(self, instance):
         self.manager.transition.direction = 'right'
         self.manager.current = 'menu'
-    
+
     def add_edition_screen(self):
         edition_screen = Screen(name='edition')
-        self.num_pad = Num_buttons(self) 
         edition_screen.add_widget(Num_buttons(self))
         self.section_screen.add_widget(edition_screen)
 
@@ -390,7 +193,7 @@ class OperationScreen(Screen):
         result_screen = Screen(name='resultados')
         result_screen.add_widget(Label(text='Resultados de la operación'))
         self.section_screen.add_widget(result_screen)
-    
+
     def modo_edicion(self, instance):
         self.section_screen.current = 'edition'
         self.section_screen.transition.direction = 'right'
@@ -398,175 +201,121 @@ class OperationScreen(Screen):
     def modo_resultados(self, instance):
         self.section_screen.current = 'resultados'
         self.section_screen.transition.direction = 'left'
-    
-    def switch_matrix(self, matrix_name):
-        self.current_matrix = matrix_name
+
+    def switch_matrix(self, name):
+        self.current_matrix = name
         self.current_index = 0
-        self.num_pad._resaltar_label()
 
     def _update_rect(self, *args):
-        # Actualizar el tamaño y la posicion del rectangulo
         self.rect.pos = self.pos
         self.rect.size = self.size
     
-    def _update_rect2(self, *args):
-        # Actualizar el tamaño y la posicion del rectangulo
-        self.rect2.pos = self.matrix_container.pos
-        self.rect2.size = self.matrix_container.size
-    
-    def _update_rect3(self, *args):
-        self.rect3.pos = self.operation_container.pos
-        self.rect3.size = self.operation_container.size
-    
-    def _update_rect4(self, *args):
-        self.rect4.pos = self.button_container_ER.pos
-        self.rect4.size = self.button_container_ER.size
+    def obtener_matriz(self, matriz_name):
+        # Ejemplo: tomar datos del widget de la matriz A o B
+        # Debes adaptar según cómo tienes implementados los inputs
+        matriz = []
+        # Por ejemplo, recorres tus TextInputs en un grid y los conviertes en números
+        # Aquí solo dejo un ejemplo genérico:
+        if matriz_name == 'A':
+            # por ejemplo, accedes a self.ids.grid_matriz_A.children y extraes valores
+            pass
+        elif matriz_name == 'B':
+            pass
+        return matriz
+    def ejecutar_operacion(self):
+        A = self.obtener_matriz('A')
+        B = self.obtener_matriz('B')
 
-    def _update_rectA(self, *args):
-        self.rectA.pos = self.matrix_A.pos
-        self.rectA.size = self.matrix_A.size
+        try:
+            if self.operacion_actual == 'suma':
+                resultado = sumar_matrices(A, B)
+            elif self.operacion_actual == 'resta':
+                resultado = restar_matrices(A, B)
+            elif self.operacion_actual == 'multiplicacion':
+                resultado = multiplicar_matrices(A, B)
+            else:
+                resultado = None
 
-    def _update_rectB(self, *args):
-        self.rectB.pos = self.matrix_B.pos
-        self.rectB.size = self.matrix_B.size
+            if resultado:
+                self.mostrar_resultado(resultado)
+        except Exception as e:
+            print(f"Error en operación: {e}")
 
-    def _update_rect_answer(self, *args):
-        self.rect_answer.pos = self.matrix_answer.pos
-        self.rect_answer.size = self.matrix_answer.size
+    def mostrar_resultado(self, matriz_resultado):
+        # Limpiamos el contenido previo
+        self.ids.answer_grid.clear_widgets()
+        
+        filas = len(matriz_resultado)
+        columnas = len(matriz_resultado[0]) if filas > 0 else 0
+        
+        # Configuramos el grid para que tenga filas y columnas adecuadas
+        self.ids.answer_grid.rows = filas
+        self.ids.answer_grid.cols = columnas
+        
+        for fila in matriz_resultado:
+            for valor in fila:
+                # Creamos un Label para mostrar el número, puedes usar TextInput si quieres editable
+                etiqueta = Label(text=str(valor), halign='center', valign='middle')
+                etiqueta.bind(size=etiqueta.setter('text_size'))  # para centrar el texto dentro del Label
+                self.ids.answer_grid.add_widget(etiqueta)
 
-class Num_buttons(GridLayout):
-    current_matrix = StringProperty("A")
-    def __init__(self, parent_screen,**kwargs):
-        super(Num_buttons, self).__init__(**kwargs)
+class Num_buttons(BoxLayout):
+    def __init__(self, parent_screen, **kwargs):
+        super().__init__(**kwargs)
+        self.orientation = 'vertical'
         self.parent_screen = parent_screen
-        
-        self.cols = 4
-        self.rows = 4
-        self.padding = 10
-        self.spacing = 10
-        self.size_hint = (1, 1)
-        
         with self.canvas.before:
-            Color(0,1,0,1)
-            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+            Color(0.9, 0.9, 0.9, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
-        #? Creando Botones
-        button_1 = Button(
-            text='1',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_2 = Button(
-            text='2',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_3 = Button(
-            text='3',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_right = Button(
-            text='right',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.apuntador_derecha  #? Agregar esta funcion
-        )
-        button_4 = Button(
-            text='4',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_5 = Button(
-            text='5',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_6 = Button(
-            text='6',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_left = Button(
-            text='Left',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.apuntador_izquierda  #? Agregar esta funcion
-        )
-        button_7 = Button(
-            text='7',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_8 = Button(
-            text='8',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_9 = Button(
-            text='9',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_equal = Button(
-            text='=',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.apuntador_igual  #? Agregar esta funcion
-        )
-        button_0 = Button(
-            text='0',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-                on_release=self.agregar_numero  #? Agregar esta funcion
-        )
-        button_dot = Button(
-            text='.',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-                on_release=self.agregar_punto  #? Agregar esta funcion
-        )
-        button_sign = Button(
-            text='+-',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-                on_release=self.cambio_signo  #? Agregar esta funcion
-        )
-        button_AC = Button(
-            text='AC',
-            size_hint=(0.25, 0.25),
-            background_color=(0.2, 0.6, 0.8, 1),
-            on_release=self.borrar #? Agregar esta funcion
-        )
-        #! Agregar botones
-        self.add_widget(button_1)
-        self.add_widget(button_2)
-        self.add_widget(button_3)
-        self.add_widget(button_right)
-        self.add_widget(button_4)
-        self.add_widget(button_5)
-        self.add_widget(button_6)
-        self.add_widget(button_left)
-        self.add_widget(button_7)
-        self.add_widget(button_8)
-        self.add_widget(button_9)
-        self.add_widget(button_equal)
-        self.add_widget(button_0)
-        self.add_widget(button_dot)
-        self.add_widget(button_sign)
-        self.add_widget(button_AC)
+        # Teclado dividido en filas
+        layout = GridLayout(cols=4, spacing=5, padding=5)
+        botones = [
+            ('1', self.agregar_numero), ('2', self.agregar_numero), ('3', self.agregar_numero), ('->', self.apuntador_derecha),
+            ('4', self.agregar_numero), ('5', self.agregar_numero), ('6', self.agregar_numero), ('<-', self.apuntador_izquierda),
+            ('7', self.agregar_numero), ('8', self.agregar_numero), ('9', self.agregar_numero), ('±', self.cambio_signo),
+            ('0', self.agregar_numero), ('.', self.agregar_punto), ('C', self.borrar), ('=', self.apuntador_igual),
+        ]
 
-    # TODO: Métodos para cada botón
+        for texto, accion in botones:
+            layout.add_widget(Button(
+                text=texto,
+                size_hint=(1, 1),
+                background_color=(0.2, 0.6, 0.8, 1),
+                on_release=accion
+            ))
+
+        self.add_widget(layout)
+
+    def _update_rect(self, *args):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
+
+    def _get_current_label(self):
+        labels = (self.parent_screen.matrix_A_labels if self.parent_screen.current_matrix == 'A'
+                else self.parent_screen.matrix_B_labels)
+        return labels[self.parent_screen.current_index]
+
+    def _resaltar_label(self):
+        labels = (self.parent_screen.matrix_A_labels if self.parent_screen.current_matrix == 'A'
+                else self.parent_screen.matrix_B_labels)
+        for i, label in enumerate(labels):
+            if i == self.parent_screen.current_index:
+                label.color = (1, 0, 0, 1)  # rojo para celda activa
+                label.bold = True
+            else:
+                label.color = (0, 0, 0, 1)  # negro
+                label.bold = False
+
+    def agregar_numero(self, instance):
+        numero = instance.text
+        label = self._get_current_label()
+        if label.text == "0":
+            label.text = numero
+        else:
+            label.text += numero
+
     def agregar_punto(self, instance):
         label = self._get_current_label()
         if '.' not in label.text:
@@ -579,13 +328,9 @@ class Num_buttons(GridLayout):
         else:
             label.text = '-' + label.text
 
-    def agregar_numero(self, instance):
-        numero = instance.text
+    def borrar(self, instance):
         label = self._get_current_label()
-        if label.text == "0":
-            label.text = numero
-        else:
-            label.text += numero
+        label.text = '0'
 
     def apuntador_derecha(self, instance):
         self.parent_screen.current_index = (self.parent_screen.current_index + 1) % 9
@@ -596,23 +341,5 @@ class Num_buttons(GridLayout):
         self._resaltar_label()
 
     def apuntador_igual(self, instance):
-        print("Valor actual:", self._get_current_label().text)
-
-    def borrar(self, instance):
-        label = self._get_current_label()
-        label.text = '0'
-
-    def _get_current_label(self):
-        labels = (self.parent_screen.matrix_A_labels if self.parent_screen.current_matrix == 'A'
-                else self.parent_screen.matrix_B_labels)
-        return labels[self.parent_screen.current_index]
-
-    def _resaltar_label(self):
-        labels = (self.parent_screen.matrix_A_labels if self.parent_screen.current_matrix == 'A'
-                else self.parent_screen.matrix_B_labels)
-        for i, label in enumerate(labels):
-            label.color = (1, 0, 0, 1) if i == self.parent_screen.current_index else (0, 0, 0, 1)
-
-    def _update_rect(self, *args):
-        self.rect.pos = self.pos
-        self.rect.size = self.size
+        print(f"Valor actual: {self._get_current_label().text}")
+        self.operation_screen.ejecutar_operacion()

@@ -1,129 +1,103 @@
-'''
-pagina_menú = .........> menu.py(){  -----> solo los botones del menú
-            2 opciones principales:
-            Opcion{ 
-                Suma-------> Cuando esté en esta opcion, que lleve a un screen de operacion.py
-                Resta
-                Multiplicacion
-                Determinante
-                Traspuesta
-                Inversa
-            }
-            Historial{
-                Suma--------> Cuando esté en esta opcion, que lleve a un screen de vista de historial
-                Resta
-                Multiplicacion
-                Determinante
-                Traspuesta
-                Inversa
-            }
-        }
-'''
-
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
-from kivy.graphics import Color, RoundedRectangle
+from kivy.properties import StringProperty
+import app.utils.globals as g
 from app.screens.login import RoundedButton
 
-class RoundedBox(Button):
-    def __init__(self,title, color,**kwargs):
-        super().__init__(**kwargs)
-        self.color = color
-        self.title = title
-        size_hint=(0.45, 0.3)
-        with self.canvas.before:
-            Color(1, 1, 1, 0.3)  
-            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
-        self.bind(size=self._update_rect, pos=self._update_rect)
-
-    def _update_rect(self, *args):
-        self.rect.size = self.size
-        self.rect.pos = self.pos
 
 class MenuScreen(Screen):
+    user_name = StringProperty("")
+
     def __init__(self, **kw):
         super().__init__(**kw)
-        # lista con los botones
+        self.username = g.current_user
+        self.password = g.current_password
+
+        # ---- COLORES DE LOS BOTONES PRINCIPALES ---- #
         self.buttons = {
-            'Suma': ((0.1, 0.7, 0.5, 0.1), (1, 0.5, 0, 1)),         # Naranja
-            'Resta': ((0.1, 0.58, 0.5, 0.1), (0.2, 0.6, 1, 1)),     # Azul celeste
-            'Multiplicacion': ((0.1, 0.46, 0.5, 0.1), (1, 0.4, 0.7, 1)),  # Rosado
-            'Determinante': ((0.1, 0.34, 0.5, 0.1), (0, 0.4, 0, 1)),      # Verde oscuro
-            'Traspuesta': ((0.1, 0.22, 0.5, 0.1), (0.4, 0.8, 1, 1)),      # Celeste
-            'Inversa': ((0.1, 0.1, 0.5, 0.1), (0.5, 1, 0.5, 1)),          # Verde claro
+            'Suma': (0.95, 0.6, 0.2, 1),           # Naranja
+            'Resta': (0.2, 0.6, 1, 1),             # Azul claro
+            'Multiplicacion': (1, 0.4, 0.7, 1),    # Rosado
+            'Determinante': (0, 0.6, 0.3, 1),      # Verde
+            'Traspuesta': (0.3, 0.8, 1, 1),        # Celeste
+            'Inversa': (0.5, 1, 0.6, 1),           # Verde claro
         }
-        
-        # agregar widgets
-        super_container = BoxLayout(
-            orientation='vertical',
+
+        self.build_ui()
+
+    def build_ui(self):
+        # --- CONTENEDOR PRINCIPAL ---
+        main_layout = BoxLayout(orientation='vertical', spacing=10, padding=15)
+
+        # --- MENSAJE DE BIENVENIDA ---
+        self.label_usuario = Label(
+            text=f'Bienvenido {self.username}',
+            font_size=26,
+            color=(1, 1, 1, 1),
+            size_hint_y=0.12
         )
-        upper = Label(
-            text = 'Usuario',
-            font_size=32,
-            size_hint_y=0.10
+
+        # --- BOTONES SUPERIORES ---
+        button_top = BoxLayout(orientation='horizontal', spacing=10, size_hint_y=0.12)
+
+        btn_opcion = RoundedButton(
+            text='Opciones',
+            background_color=(0.2, 0.6, 0.8, 1),
         )
-        button_up_container = BoxLayout(
-            orientation='horizontal',
-            size_hint_y=0.10,
-            padding=10,
-            spacing=10
-        )
-        button_up_option = Button(
-            text='Opcion',
-            size_hint=(0.5, 0.90)
-        )
-        button_up_historial = Button(
+        btn_historial = RoundedButton(
             text='Historial',
-            size_hint=(0.5, 0.90)
+            background_color=(0.2, 0.6, 0.8, 1),
         )
-        button_up_container.add_widget(button_up_option)
-        button_up_container.add_widget(button_up_historial)
 
+        button_top.add_widget(btn_opcion)
+        button_top.add_widget(btn_historial)
 
-        button_main_container = GridLayout(
-            cols=2,
-            rows=3,
-            size_hint=(1, 0.70),
-            padding=[10, 10, 10, 10],
-            spacing = 10,
-        )
-        
-        for text, ((x, y, w, h), color) in self.buttons.items():
-            button = RoundedButton(
-                text=text,
-                pos_hint={'x': x, 'y': y},
-                size_hint=(w, h),
-                background_normal='',
+        # --- BOTONES PRINCIPALES DE OPERACIONES ---
+        button_grid = GridLayout(cols=2, spacing=12, size_hint=(1, 0.60), padding=10)
+
+        for name, color in self.buttons.items():
+            btn = RoundedButton(
+                text=name,
                 background_color=color,
-                color=(1, 1, 1, 1)  # Texto blanco
+                on_release=self.go_to_operation
             )
-            button.bind(on_release=self.go_to_operation)
-            button_main_container.add_widget(button)
-        
-        # for i in self.buttons:
-        #     button= Button(
-        #         text=i,
-        #         size_hint=(0.5,0.3),
-        #         background_color=self.buttons[i]
-        #     )
-        #     button_main_container.add_widget(button)
-        down = Widget(
-            size_hint_y=0.10
+            button_grid.add_widget(btn)
+
+        # --- ESPACIO Y BOTÓN DE CERRAR SESIÓN ---
+        spacer = Widget(size_hint_y=0.05)
+
+        logout_btn = RoundedButton(
+            text='Cerrar sesión',
+            background_color=(1, 0.3, 0.3, 1),
+            size_hint_y=0.12,
+            on_release=self.logout
         )
-        
-        # Agregar los widgets al contenedor principal
-        super_container.add_widget(upper)
-        super_container.add_widget(button_up_container)
-        super_container.add_widget(button_main_container)
-        super_container.add_widget(down)
-        self.add_widget(super_container)
+
+        # --- AGREGAR TODO AL CONTENEDOR ---
+        main_layout.add_widget(self.label_usuario)
+        main_layout.add_widget(button_top)
+        main_layout.add_widget(button_grid)
+        main_layout.add_widget(spacer)
+        main_layout.add_widget(logout_btn)
+
+        self.add_widget(main_layout)
+
+    def on_pre_enter(self, *args):
+        self.label_usuario.text = f'Bienvenido {g.current_user}'
 
     def go_to_operation(self, instance):
-        # Guardar el nombre del botón seleccionado, si deseas usarlo luego
         self.manager.transition.direction = 'left'
         self.manager.get_screen('operation').operation_name = instance.text
         self.manager.current = 'operation'
+        g.title_operation = instance.text
+        print(f"[DEBUG] Operación seleccionada: {g.title_operation}")
+
+    def logout(self, instance):
+        g.current_user = ""
+        g.current_password = ""
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'login'
