@@ -95,7 +95,7 @@ class LoginContent(BoxLayout):
 
         btns = [
             ("UNAB", 'https://www.portal.unab.edu.pe/'),
-            ("GitHub", 'https://github.com/JMax-Trujillo'),
+            ("GitHub", 'https://github.com/JMax-Trujillo/App-Matriz'),
             ("EPISI", 'https://frabjous-kelpie-f088da.netlify.app/')
         ]
         for name, url in btns:
