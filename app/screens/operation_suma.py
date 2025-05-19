@@ -236,17 +236,15 @@ class Operation_Suma_Screen(Screen):
                 fila.append(valor)
             matriz.append(fila)
         return matriz
+
     def ejecutar_operacion(self):
         A = self.obtener_matriz('A')
         B = self.obtener_matriz('B')
 
+        
         try:
             if self.operacion_actual == 'suma':
                 resultado = sumar_matrices(A, B)
-            elif self.operacion_actual == 'resta':
-                resultado = restar_matrices(A, B)
-            elif self.operacion_actual == 'multiplicacion':
-                resultado = multiplicar_matrices(A, B)
             else:
                 resultado = None
 
