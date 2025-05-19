@@ -124,18 +124,23 @@ class Operation_Suma_Screen(Screen):
         self.operation_container.add_widget(self.matrix_container)
 
     def _crear_matriz(self, nombre):
-        box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
-        self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
-
-        label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
-        layout = MatrixLayout()
 
         if nombre == 'A':
+            box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
+            self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+
+            label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
+            layout = MatrixLayout()
             self.matrix_A_output = layout
             self.matrix_A_labels = layout.labels
             self.current_matrix = 'A'
             self.current_index = 0
         else:
+            box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
+            self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+
+            label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
+            layout = MatrixLayout()
             self.matrix_B_output = layout
             self.matrix_B_labels = layout.labels
 
