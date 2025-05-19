@@ -3,8 +3,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.graphics import Color, RoundedRectangle, Rectangle
-from kivy.metrics import dp
+from kivy.graphics import Color, RoundedRectangle, Rectangle, Line
+from kivy.metrics import dp, sp
 from kivy.properties import StringProperty
 from kivy.uix.textinput import TextInput
 from app.logic.operation_sum import sumar_matrices
@@ -15,17 +15,6 @@ from kivy.properties import StringProperty
 
 # --- COMPONENTES BÁSICOS ---
 
-class ColorLabel(Label):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        with self.canvas.before:
-            Color(1, 1, 1, 0.3)
-            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
-        self.bind(size=self._update_rect, pos=self._update_rect)
-
-    def _update_rect(self, *args):
-        self.rect.size = self.size
-        self.rect.pos = self.pos
 
 
 class MatrixLayout(GridLayout):
@@ -44,7 +33,31 @@ class MatrixLayout(GridLayout):
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         for i in range(9):
-            label = ColorLabel(text=str(i), color=(0, 0, 0, 1))
+            label = TextInput(text='0', font_size=sp(8))
+            self.labels.append(label)
+            self.add_widget(label)
+
+    def _update_rect(self, *args):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
+        
+class AnswerLayout(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cols = 3
+        self.rows = 3
+        self.padding = 10
+        self.spacing = 10
+        self.size_hint = (1, 1)
+        self.labels = []
+
+        with self.canvas.before:
+            Color(0.2, 0.8, 0.2, 1)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+        self.bind(size=self._update_rect, pos=self._update_rect)
+
+        for i in range(9):
+            label = Label(text='0', font_size=sp(15))
             self.labels.append(label)
             self.add_widget(label)
 
@@ -55,23 +68,21 @@ class MatrixLayout(GridLayout):
 
 # --- COMPONENTE PRINCIPAL ---
 
-class OperationScreen(Screen):
-    operation = StringProperty("")
+class Operation_Suma_Screen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.operation_title = g.title_operation
-        print(self.operation_title)
+        self.operacion_actual = 'suma'
         print(g.title_operation)
         with self.canvas.before:
-            Color(0.9, 0.9, 0.9, 1)
+            Color(0.2, 0.2, 0.2, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         # Layout principal
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        self.title = Label(text='', size_hint=(1, 0.1), font_size='20sp', color=(1,0,1,1))
+        self.title = Label(text="Suma", size_hint=(1, 0.1), font_size='20sp', color=(1, 0, 1, 1))
         self.main_layout.add_widget(self.title)
 
         self.operation_container = BoxLayout(orientation='vertical', size_hint=(1, 0.8), spacing=10)
@@ -85,17 +96,13 @@ class OperationScreen(Screen):
         self.main_layout.add_widget(self._crear_pie())
 
         self.add_widget(self.main_layout)
-        
-    def on_pre_enter(self, *args):
-        # ✅ Se actualiza justo antes de entrar a la pantalla
-        self.title.text = self.operation_title
 
     def _crear_panel_matrices(self):
         self.matrix_container = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(300), spacing=10)
         self._decorar_fondo(self.matrix_container, Color(0, 1, 1, 1), 'rect2')
 
         # Matrices A y B
-        self.input_matrix_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(110), spacing=10)
+        self.input_matrix_container = BoxLayout(orientation='horizontal', size_hint_y=None, height=dp(10), spacing=10)
 
         self.matrix_A = self._crear_matriz('A')
         self.matrix_B = self._crear_matriz('B')
@@ -108,7 +115,7 @@ class OperationScreen(Screen):
         self._decorar_fondo(self.matrix_answer, Color(0, 1, 0, 1), 'rect_answer')
 
         answer_label = Label(text='Answer', size_hint=(1, 0.3))
-        self.matrix_answer_output = MatrixLayout()
+        self.matrix_answer_output = AnswerLayout()
         self.matrix_answer.add_widget(answer_label)
         self.matrix_answer.add_widget(self.matrix_answer_output)
 
@@ -211,16 +218,23 @@ class OperationScreen(Screen):
         self.rect.size = self.size
     
     def obtener_matriz(self, matriz_name):
-        # Ejemplo: tomar datos del widget de la matriz A o B
-        # Debes adaptar según cómo tienes implementados los inputs
         matriz = []
-        # Por ejemplo, recorres tus TextInputs en un grid y los conviertes en números
-        # Aquí solo dejo un ejemplo genérico:
         if matriz_name == 'A':
-            # por ejemplo, accedes a self.ids.grid_matriz_A.children y extraes valores
-            pass
+            labels = self.matrix_A_labels
         elif matriz_name == 'B':
-            pass
+            labels = self.matrix_B_labels
+        else:
+            return []
+
+        for i in range(0, len(labels), 3):
+            fila = []
+            for j in range(3):
+                try:
+                    valor = float(labels[i + j].text)
+                except ValueError:
+                    valor = 0  # Valor por defecto si hay error
+                fila.append(valor)
+            matriz.append(fila)
         return matriz
     def ejecutar_operacion(self):
         A = self.obtener_matriz('A')
@@ -242,22 +256,17 @@ class OperationScreen(Screen):
             print(f"Error en operación: {e}")
 
     def mostrar_resultado(self, matriz_resultado):
-        # Limpiamos el contenido previo
-        self.ids.answer_grid.clear_widgets()
-        
-        filas = len(matriz_resultado)
-        columnas = len(matriz_resultado[0]) if filas > 0 else 0
-        
-        # Configuramos el grid para que tenga filas y columnas adecuadas
-        self.ids.answer_grid.rows = filas
-        self.ids.answer_grid.cols = columnas
-        
+        layout = self.matrix_answer_output
+        layout.clear_widgets()
+
+        layout.rows = len(matriz_resultado)
+        layout.cols = len(matriz_resultado[0]) if matriz_resultado else 0
+
         for fila in matriz_resultado:
             for valor in fila:
-                # Creamos un Label para mostrar el número, puedes usar TextInput si quieres editable
                 etiqueta = Label(text=str(valor), halign='center', valign='middle')
-                etiqueta.bind(size=etiqueta.setter('text_size'))  # para centrar el texto dentro del Label
-                self.ids.answer_grid.add_widget(etiqueta)
+                etiqueta.bind(size=etiqueta.setter('text_size'))
+                layout.add_widget(etiqueta)
 
 class Num_buttons(BoxLayout):
     def __init__(self, parent_screen, **kwargs):
@@ -281,8 +290,6 @@ class Num_buttons(BoxLayout):
         for texto, accion in botones:
             layout.add_widget(Button(
                 text=texto,
-                size_hint=(1, 1),
-                background_color=(0.2, 0.6, 0.8, 1),
                 on_release=accion
             ))
 
@@ -309,37 +316,42 @@ class Num_buttons(BoxLayout):
                 label.bold = False
 
     def agregar_numero(self, instance):
-        numero = instance.text
-        label = self._get_current_label()
-        if label.text == "0":
-            label.text = numero
+        current = self.get_current_input()
+        if current.text == "0":
+            current.text = instance.text
         else:
-            label.text += numero
+            current.text += instance.text
 
     def agregar_punto(self, instance):
-        label = self._get_current_label()
-        if '.' not in label.text:
-            label.text += '.'
-
-    def cambio_signo(self, instance):
-        label = self._get_current_label()
-        if label.text.startswith('-'):
-            label.text = label.text[1:]
-        else:
-            label.text = '-' + label.text
+        current = self.get_current_input()
+        if '.' not in current.text:
+            current.text += '.'
 
     def borrar(self, instance):
-        label = self._get_current_label()
-        label.text = '0'
+        current = self.get_current_input()
+        current.text = '0'
+
+    def cambio_signo(self, instance):
+        current = self.get_current_input()
+        try:
+            val = float(current.text)
+            current.text = str(-val)
+        except ValueError:
+            pass
 
     def apuntador_derecha(self, instance):
-        self.parent_screen.current_index = (self.parent_screen.current_index + 1) % 9
-        self._resaltar_label()
+        if self.parent_screen.current_index < 8:
+            self.parent_screen.current_index += 1
 
     def apuntador_izquierda(self, instance):
-        self.parent_screen.current_index = (self.parent_screen.current_index - 1) % 9
-        self._resaltar_label()
+        if self.parent_screen.current_index > 0:
+            self.parent_screen.current_index -= 1
 
     def apuntador_igual(self, instance):
-        print(f"Valor actual: {self._get_current_label().text}")
-        self.operation_screen.ejecutar_operacion()
+        self.parent_screen.ejecutar_operacion()
+
+    def get_current_input(self):
+        if self.parent_screen.current_matrix == 'A':
+            return self.parent_screen.matrix_A_labels[self.parent_screen.current_index]
+        else:
+            return self.parent_screen.matrix_B_labels[self.parent_screen.current_index]
