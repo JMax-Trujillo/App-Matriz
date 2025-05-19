@@ -27,7 +27,7 @@ class MatrixLayout(GridLayout):
         self.labels = []
 
         with self.canvas.before:
-            Color(0.2, 0.8, 0.2, 1)
+            Color(140/255, 47/255, 57/255, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -51,7 +51,7 @@ class AnswerLayout(GridLayout):
         self.labels = []
 
         with self.canvas.before:
-            Color(0.2, 0.8, 0.2, 1)
+            Color(140/255, 47/255, 57/255, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -74,8 +74,8 @@ class Operation_Multiplicacion_Screen(Screen):
         self.operacion_actual = 'multiplicacion'
         print(g.title_operation)
         with self.canvas.before:
-            Color(0.2, 0.2, 0.2, 1)
-            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+            Color(252/255,185/255,178/255, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         # Layout principal
@@ -126,7 +126,7 @@ class Operation_Multiplicacion_Screen(Screen):
 
         if nombre == 'B':
             self.box2 = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
-            self._decorar_fondo(self.box2, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+            self._decorar_fondo(self.box2, Color(70/255, 18/255, 32/255, 1), f'rect{nombre}')
 
             self.label1 = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
             self.layout = MatrixLayout()
@@ -139,7 +139,7 @@ class Operation_Multiplicacion_Screen(Screen):
             return self.box2
         elif nombre == 'A':
             self.box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
-            self._decorar_fondo(self.box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+            self._decorar_fondo(self.box, Color(70/255, 18/255, 32/255, 1), f'rect{nombre}')
 
             self.label2 = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
             self.layout = MatrixLayout()
@@ -276,13 +276,30 @@ class Operation_Multiplicacion_Screen(Screen):
                 # etiqueta.bind(size=lambda instance, value: setattr(instance, 'text_size', instance.size))
                 layout.add_widget(etiqueta)
 
+class RoundedButton(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_normal = ''
+        self.background_down = ''
+        self.background_color = (0, 0, 0, 0)
+        self.color = (1, 1, 1, 1)  # Texto blanco
+        self.bold = True
+        with self.canvas.before:
+            Color(178/255, 58/255, 72/255, 1)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+        self.bind(size=self._update_rect, pos=self._update_rect)
+    
+    def _update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
 class Num_buttons(BoxLayout):
     def __init__(self, parent_screen, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
         self.parent_screen = parent_screen
         with self.canvas.before:
-            Color(0.9, 0.9, 0.9, 1)
+            Color(254/255, 208/255, 187/255, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -296,11 +313,10 @@ class Num_buttons(BoxLayout):
         ]
 
         for texto, accion in botones:
-            layout.add_widget(Button(
+            layout.add_widget(RoundedButton(
                 text=texto,
                 on_release=accion
             ))
-
         self.add_widget(layout)
 
     def _update_rect(self, *args):

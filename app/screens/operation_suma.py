@@ -1,3 +1,4 @@
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -15,8 +16,6 @@ from kivy.properties import StringProperty
 
 # --- COMPONENTES BÁSICOS ---
 
-
-
 class MatrixLayout(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -28,7 +27,7 @@ class MatrixLayout(GridLayout):
         self.labels = []
 
         with self.canvas.before:
-            Color(0.2, 0.8, 0.2, 1)
+            Color(140/255, 47/255, 57/255, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -52,7 +51,7 @@ class AnswerLayout(GridLayout):
         self.labels = []
 
         with self.canvas.before:
-            Color(0.2, 0.8, 0.2, 1)
+            Color(140/255, 47/255, 57/255, 1)
             self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -72,17 +71,17 @@ class Operation_Suma_Screen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.operacion_actual = 'suma'
+        self.operacion_actual = 'sumar'
         print(g.title_operation)
         with self.canvas.before:
-            Color(0.2, 0.2, 0.2, 1)
-            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+            Color(252/255,185/255,178/255, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos, radius=[20])
         self.bind(size=self._update_rect, pos=self._update_rect)
 
         # Layout principal
         self.main_layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
-        self.title = Label(text="Suma", size_hint=(1, 0.1), font_size='20sp', color=(1, 0, 1, 1))
+        self.title = Label(text="Sumar", size_hint=(1, 0.1), font_size='20sp', color=(1, 0, 1, 1))
         self.main_layout.add_widget(self.title)
 
         self.operation_container = BoxLayout(orientation='vertical', size_hint=(1, 0.8), spacing=10)
@@ -125,28 +124,33 @@ class Operation_Suma_Screen(Screen):
 
     def _crear_matriz(self, nombre):
 
-        if nombre == 'A':
-            box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
-            self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+        if nombre == 'B':
+            self.box2 = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
+            self._decorar_fondo(self.box2, Color(70/255, 18/255, 32/255, 1), f'rect{nombre}')
 
-            label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
-            layout = MatrixLayout()
-            self.matrix_A_output = layout
-            self.matrix_A_labels = layout.labels
+            self.label1 = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
+            self.layout = MatrixLayout()
+            self.matrix_A_output = self.layout
+            self.matrix_A_labels = self.layout.labels
+
+            print('Holaaaasdasdasdasd')
+            self.box2.add_widget(self.label1)
+            self.box2.add_widget(self.layout)
+            return self.box2
+        elif nombre == 'A':
+            self.box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
+            self._decorar_fondo(self.box, Color(70/255, 18/255, 32/255, 1), f'rect{nombre}')
+
+            self.label2 = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
+            self.layout = MatrixLayout()
+            self.matrix_B_output = self.layout
+            self.matrix_B_labels = self.layout.labels
             self.current_matrix = 'A'
             self.current_index = 0
-        else:
-            box = BoxLayout(orientation='vertical', size_hint=(1, None), height=dp(110))
-            self._decorar_fondo(box, Color(0.3, 0.9, 0.3, 1), f'rect{nombre}')
+            self.box.add_widget(self.label2)
+            self.box.add_widget(self.layout)
+            return self.box
 
-            label = Label(text=f'Matriz {nombre}', size_hint=(1, 0.3))
-            layout = MatrixLayout()
-            self.matrix_B_output = layout
-            self.matrix_B_labels = layout.labels
-
-        box.add_widget(label)
-        box.add_widget(layout)
-        return box
 
     def _crear_botones_edicion_resultado(self):
         self.button_container_ER = BoxLayout(orientation='horizontal', size_hint=(1, 0.15), spacing=10)
@@ -248,7 +252,7 @@ class Operation_Suma_Screen(Screen):
 
         
         try:
-            if self.operacion_actual == 'suma':
+            if self.operacion_actual == 'sumar':
                 resultado = sumar_matrices(A, B)
             else:
                 resultado = None
@@ -269,7 +273,25 @@ class Operation_Suma_Screen(Screen):
             for valor in fila:
                 etiqueta = Label(text=str(valor), halign='center', valign='middle')
                 etiqueta.bind(size=etiqueta.setter('text_size'))
+                # etiqueta.bind(size=lambda instance, value: setattr(instance, 'text_size', instance.size))
                 layout.add_widget(etiqueta)
+
+class RoundedButton(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_normal = ''
+        self.background_down = ''
+        self.background_color = (0, 0, 0, 0)
+        self.color = (1, 1, 1, 1)  # Texto blanco
+        self.bold = True
+        with self.canvas.before:
+            Color(178/255, 58/255, 72/255, 1)
+            self.rect = RoundedRectangle(size=self.size, pos=self.pos, radius=[20])
+        self.bind(size=self._update_rect, pos=self._update_rect)
+    
+    def _update_rect(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
 
 class Num_buttons(BoxLayout):
     def __init__(self, parent_screen, **kwargs):
@@ -277,7 +299,7 @@ class Num_buttons(BoxLayout):
         self.orientation = 'vertical'
         self.parent_screen = parent_screen
         with self.canvas.before:
-            Color(0.9, 0.9, 0.9, 1)
+            Color(254/255, 208/255, 187/255, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -291,11 +313,10 @@ class Num_buttons(BoxLayout):
         ]
 
         for texto, accion in botones:
-            layout.add_widget(Button(
+            layout.add_widget(RoundedButton(
                 text=texto,
                 on_release=accion
             ))
-
         self.add_widget(layout)
 
     def _update_rect(self, *args):
